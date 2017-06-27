@@ -5,6 +5,10 @@ const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 
+beforeEach(done => {
+	Todo.remove({}).then(() => done())
+});
+
 let app = express();
 
 //handle json in body of requests 
@@ -31,3 +35,4 @@ app.listen(3000, () => {
 	console.log('Starting on port 3000');
 });
 
+module.exports.app = app;
