@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const {mongoose} = require('./db/mongoose');
-const {Todo} = require('./models/todo');
-const {User} = require('./models/user');
-const {ObjectID} = require('mongodb');
+const { mongoose } = require('./db/mongoose');
+const { Todo } = require('./models/todo');
+const { User } = require('./models/user');
+const { ObjectID } = require('mongodb');
 
 let app = express();
 
@@ -35,6 +35,7 @@ app.get('/todos', (req, res) => {
 		});
 });
 
+
 // GET /todos/123456
 app.get('/todos/:id', (req, res) => {
 	console.log("GET /todos/:id ...")
@@ -53,11 +54,34 @@ app.get('/todos/:id', (req, res) => {
 
 		res.send(todo);
 	})
-	//error
-	//400 - and send empty body back
+		//error
+		//400 - and send empty body back
 		.catch(e => res.status(400).send())
 
 })
+
+app.delete('/todos/:id'), (req, res) => {
+	//get the id 
+	let id = req.params.id;
+	//validte the id --> ot valid? return 404 
+	if (!ObjectID.isValid(id)) return res.status(404).send();
+
+	//remove todo by id 
+	Todo.findByIdAndRemove(id).then(todo => {
+		//success
+		//if no doc send 404 
+		//if doc, send back 
+		if (!todo) return res.status(404).send();
+
+		return res.send(todo);
+	}).catch(err => {
+		//error 
+		//400 empty body 
+		return res.status(400).send();
+	});
+
+}
+
 
 app.listen(3000, () => {
 	console.log('Starting on port 3000');
