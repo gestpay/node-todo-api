@@ -5,6 +5,7 @@ const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 const { ObjectID } = require('mongodb');
+const _ = require('lodash');
 
 let app = express();
 
@@ -82,6 +83,17 @@ app.delete('/todos/:id'), (req, res) => {
 
 }
 
+app.post('/users', (req, res) => {
+	//take only these values from the req body 
+	var body = _.pick(req.body, ['email', 'password']);
+	var user = new User(body);
+
+	user.save()
+		.then(user => res.send(user))
+		.catch(e => {
+			res.status(400).send(e)
+		})
+});
 
 app.listen(3000, () => {
 	console.log('Starting on port 3000');
