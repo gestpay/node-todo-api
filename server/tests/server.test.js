@@ -4,20 +4,10 @@ const request = require('supertest');
 const { app } = require('./../server');
 const { Todo } = require('./../models/todo');
 
+const {todos, populateTodos, users, populateUsers } = require('./seed/seed')
 
-let todo1 = {
-	text : "First todo"
-}
-
-let todo2 = {
-	text: "Second todo"
-}
-
-beforeEach(done => {
-	Todo.remove({}).then(() => done())
-	Todo.insertMany([todo1, todo2]);
-});
-
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
 	it('should create a new todo', (done) => {
