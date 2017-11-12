@@ -1,13 +1,24 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const { mongoose } = require('./db/mongoose');
-const { Todo } = require('./models/todo');
-const { User } = require('./models/user');
-const { ObjectID } = require('mongodb');
+const {
+	mongoose
+} = require('./db/mongoose');
+const {
+	Todo
+} = require('./models/todo');
+const {
+	User
+} = require('./models/user');
+const {
+	ObjectID
+} = require('mongodb');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs')
 
-const {authenticate} = require('./middleware/authenticate')
+const {
+	authenticate
+} = require('./middleware/authenticate')
 
 let app = express();
 
@@ -50,13 +61,13 @@ app.get('/todos/:id', (req, res) => {
 
 	//findById
 	Todo.findById(id).then(todo => {
-		// success
-		// if todo - send it back
-		// if no todo - send back 404 with empty body
-		if (!todo) return res.status(404).send();
+			// success
+			// if todo - send it back
+			// if no todo - send back 404 with empty body
+			if (!todo) return res.status(404).send();
 
-		res.send(todo);
-	})
+			res.send(todo);
+		})
 		//error
 		//400 - and send empty body back
 		.catch(e => res.status(400).send())
@@ -91,13 +102,27 @@ app.post('/users', (req, res) => {
 	var user = new User(body);
 
 	user.save().then(() => {
-			return user.generateAuthToken(); 
-		}).then(token => {
-			res.header('x-auth',  token);
-			res.send(user);
+		return user.generateAuthToken();
+	}).then(token => {
+		res.header('x-auth', token);
+		res.send(user);
+	}).catch(e => {
+		res.status(400).send(e)
+	})
+});
+
+
+// POST /users/login 
+app.post('/users/login', (req, res) => {
+	var body = _.pick(req.body, ['email', 'password']);
+	User.findByCredentials(body.email, body.password)
+		.then(user => {
+			user.generateAuthToken().then(token => {
+				res.header('x-auth', token).send(user);
+			});
 		}).catch(e => {
-			res.status(400).send(e)
-		})
+			res.status(400).send(); 
+		});
 });
 
 //private route
